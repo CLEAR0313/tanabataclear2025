@@ -1,1 +1,78 @@
-# tanabataclear2025
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>みんなの七夕短冊2025🎋</title>
+  <style>
+    body {
+      font-family: "Hiragino Kaku Gothic ProN", sans-serif;
+      background: linear-gradient(to bottom, #ffe4ec, #d0f0ff);
+      margin: 0; padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+    form {
+      margin-bottom: 20px;
+    }
+    input, textarea, button {
+      padding: 10px;
+      margin: 5px;
+      border-radius: 8px;
+      border: none;
+      font-size: 1em;
+    }
+    button {
+      background-color: #ff69b4;
+      color: white;
+      cursor: pointer;
+    }
+    .tanzaku {
+      background-color: #fff;
+      border: 2px dashed #ffb6c1;
+      padding: 15px;
+      margin: 10px auto;
+      width: 90%;
+      max-width: 400px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <h1>🌟 みんなの七夕短冊2025 🎋</h1>
+  <p>願いごとを短冊に書いてみよう！</p>
+
+  <form id="wishForm">
+    <input type="text" id="name" placeholder="名前（任意）" />
+    <br />
+    <textarea id="wish" placeholder="願いごとを書いてください" rows="3" cols="30"></textarea>
+    <br />
+    <button type="submit">短冊をかける✨</button>
+  </form>
+
+  <div id="tanzakuContainer"></div>
+
+  <script>
+    const form = document.getElementById('wishForm');
+    const container = document.getElementById('tanzakuContainer');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('name').value || "匿名";
+      const wish = document.getElementById('wish').value;
+      if (wish.trim() === "") return;
+
+      const div = document.createElement('div');
+      div.className = 'tanzaku';
+      div.innerHTML = `<strong>${name}さんの願い🎋</strong><p>${wish}</p>`;
+      container.prepend(div);
+
+      form.reset();
+    });
+  </script>
+</body>
+</html>
