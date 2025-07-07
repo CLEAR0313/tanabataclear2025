@@ -25,7 +25,7 @@
       margin-bottom: 30px;
     }
 
-    input, textarea {
+    input, textarea, select {
       display: block;
       margin: 10px auto;
       padding: 10px;
@@ -67,16 +67,19 @@
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
       color: #333;
       text-shadow: 0 1px 1px rgba(255, 255, 255, 0.7);
+      border: 3px solid transparent;
     }
 
     .wish .text {
       flex: 1;
       font-size: 16px;
-      margin-bottom: 10px;
       word-break: break-word;
       writing-mode: vertical-rl;
       direction: rtl;
-      text-align: start;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
     }
 
     .wish strong {
@@ -97,6 +100,13 @@
   <form onsubmit="submitWish(); return false;">
     <input type="text" id="name" placeholder="お名前（ニックネーム可）">
     <textarea id="wish" rows="3" placeholder="あなたの願いごとをここに書いてください"></textarea>
+    <select id="borderColor">
+      <option value="#ff69b4">ピンク</option>
+      <option value="#ffd700">黄色</option>
+      <option value="#32cd32">緑</option>
+      <option value="#1e90ff">青</option>
+      <option value="#9831cc">紫</option>
+    </select>
     <button type="submit">短冊を飾る</button>
   </form>
 
@@ -107,23 +117,26 @@
     function submitWish() {
       const name = document.getElementById("name").value.trim() || '匿名';
       const wish = document.getElementById("wish").value.trim();
+      const borderColor = document.getElementById("borderColor").value;
 
       if (!wish) {
         alert("願いごとを入力してください");
         return;
       }
 
-      const wishData = { name: name, wish: wish };
+      const wishData = { name, wish, borderColor };
       addWishElement(wishData);
       saveWishToLocalStorage(wishData);
+
       document.getElementById("name").value = "";
       document.getElementById("wish").value = "";
     }
 
-    function addWishElement({ name, wish }) {
+    function addWishElement({ name, wish, borderColor }) {
       const wall = document.getElementById("wall");
       const el = document.createElement("div");
       el.className = 'wish';
+      el.style.borderColor = borderColor || "#000";
       el.innerHTML = `<div class="text">${wish}</div><strong>${name}</strong>`;
       wall.appendChild(el);
     }
