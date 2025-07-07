@@ -6,7 +6,7 @@
   <style>
     body {
       font-family: 'Helvetica', sans-serif;
-      background-image: url("background.png"); /* 背景画像 */
+      background-image: url("background.png"); /* background.png */
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
