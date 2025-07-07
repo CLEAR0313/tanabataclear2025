@@ -1,81 +1,147 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>クリア七夕祭り
-    オンライン短冊2025🎋</title>
+  <meta charset="UTF-8">
+  <title>七夕オンライン短冊イベント</title>
   <style>
     body {
-      font-family: "Hiragino Kaku Gothic ProN", sans-serif;
-      background: linear-gradient(to bottom, #ffe4ec, #d0f0ff);
-      margin: 0; padding: 20px;
+      font-family: 'Helvetica', sans-serif;
+      background: linear-gradient(to bottom, #fef6ff, #e3f0ff);
       text-align: center;
+      padding: 30px;
     }
+
     h1 {
       font-size: 2em;
-      margin-bottom: 10px;
+      color: #9b59b6;
     }
+
     form {
-      margin-bottom: 20px;
+      background: #fff0fa;
+      display: inline-block;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
     }
-    input, textarea, button {
+
+    input, textarea {
+      display: block;
+      margin: 10px auto;
       padding: 10px;
-      margin: 5px;
-      border-radius: 8px;
-      border: none;
-      font-size: 1em;
+      width: 250px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
     }
+
     button {
-      background-color: #ff69b4;
+      background: #a05fd5;
       color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 16px;
       cursor: pointer;
     }
-    .tanzaku {
-      background-color: #fff;
-      border: 2px dashed #ffb6c1;
-      padding: 15px;
-      margin: 10px auto;
-      width: 90%;
-      max-width: 400px;
+
+    #wall {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .wish {
+      width: 150px;
+      min-height: 250px;
+      padding: 10px;
       border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      background-image: url('短冊2.png');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      color: #333;
+      text-shadow: 0 1px 1px rgba(255, 255, 255, 0.7);
+    }
+
+    .wish .text {
+      flex: 1;
+      font-size: 14px;
+      margin-bottom: 10px;
+      word-break: break-word;
+    }
+
+    .wish strong {
+      font-size: 12px;
+      opacity: 0.7;
+    }
+
+    h2 {
+      margin-top: 40px;
+      font-size: 1.5em;
     }
   </style>
 </head>
 <body>
-  <h1>🌟クリア七夕祭り🎋</h1>
-  <h1>🌟オンライン短冊2025🎋</h1>
-  <p>願いごとを短冊に書いてみよう！</p>
-  <p>みんなの願い事がきっとあの人に届く🌠</p>
+  <h1>🎋 七夕オンライン短冊イベント 🎋</h1>
+  <p>あなたの願いごとを短冊に込めて星に届けましょう 🌟</p>
 
-  <form id="wishForm">
-    <input type="text" id="name" placeholder="名前（任意）" />
-    <br />
-    <textarea id="wish" placeholder="願いごとを書いてください" rows="3" cols="30"></textarea>
-    <br />
-    <button type="submit">短冊をかける✨</button>
+  <form onsubmit="submitWish(); return false;">
+    <input type="text" id="name" placeholder="お名前（ニックネーム可）">
+    <textarea id="wish" rows="3" placeholder="あなたの願いごとをここに書いてください"></textarea>
+    <button type="submit">短冊を飾る</button>
   </form>
 
-  <div id="tanzakuContainer"></div>
+  <h2>みんなの短冊一覧🖋</h2>
+  <div id="wall"></div>
 
   <script>
-    const form = document.getElementById('wishForm');
-    const container = document.getElementById('tanzakuContainer');
+    function submitWish() {
+      const name = document.getElementById("name").value.trim() || '匿名';
+      const wish = document.getElementById("wish").value.trim();
 
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const name = document.getElementById('name').value || "匿名";
-      const wish = document.getElementById('wish').value;
-      if (wish.trim() === "") return;
+      if (!wish) {
+        alert("願いごとを入力してください");
+        return;
+      }
 
-      const div = document.createElement('div');
-      div.className = 'tanzaku';
-      div.innerHTML = `<strong>${name}さんの願い🎋</strong><p>${wish}</p>`;
-      container.prepend(div);
+      const wishData = {
+        name: name,
+        wish: wish
+      };
 
-      form.reset();
-    });
+      addWishElement(wishData);
+      saveWish(wishData);
+
+      document.getElementById("name").value = "";
+      document.getElementById("wish").value = "";
+    }
+
+    function addWishElement({ name, wish }) {
+      const wall = document.getElementById("wall");
+      const el = document.createElement("div");
+      el.className = 'wish';
+      el.innerHTML = `<div class="text">${wish}</div><strong>${name}</strong>`;
+      wall.appendChild(el);
+    }
+
+    function saveWish(wishData) {
+      let wishes = JSON.parse(localStorage.getItem("wishes") || "[]");
+      wishes.push(wishData);
+      localStorage.setItem("wishes", JSON.stringify(wishes));
+    }
+
+    function loadWishes() {
+      const wishes = JSON.parse(localStorage.getItem("wishes") || "[]");
+      wishes.forEach(wish => addWishElement(wish));
+    }
+
+    window.onload = loadWishes;
   </script>
 </body>
 </html>
