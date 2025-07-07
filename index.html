@@ -101,6 +101,7 @@
   <div id="wall"></div>
 
   <script>
+    // 短冊追加
     function submitWish() {
       const name = document.getElementById("name").value.trim() || '匿名';
       const wish = document.getElementById("wish").value.trim();
@@ -115,13 +116,18 @@
         wish: wish
       };
 
+      // 表示追加
       addWishElement(wishData);
-      saveWish(wishData);
 
+      // 保存処理
+      saveWishToLocalStorage(wishData);
+
+      // フォーム初期化
       document.getElementById("name").value = "";
       document.getElementById("wish").value = "";
     }
 
+    // 表示を追加
     function addWishElement({ name, wish }) {
       const wall = document.getElementById("wall");
       const el = document.createElement("div");
@@ -130,17 +136,23 @@
       wall.appendChild(el);
     }
 
-    function saveWish(wishData) {
+    // localStorage に保存
+    function saveWishToLocalStorage(newWish) {
       let wishes = JSON.parse(localStorage.getItem("wishes") || "[]");
-      wishes.push(wishData);
+      wishes.push(newWish);
       localStorage.setItem("wishes", JSON.stringify(wishes));
     }
 
+    // ページ読み込み時に保存された短冊を表示
     function loadWishes() {
-      const wishes = JSON.parse(localStorage.getItem("wishes") || "[]");
-      wishes.forEach(wish => addWishElement(wish));
+      const saved = localStorage.getItem("wishes");
+      if (saved) {
+        const wishes = JSON.parse(saved);
+        wishes.forEach(wish => addWishElement(wish));
+      }
     }
 
+    // 初期化
     window.onload = loadWishes;
   </script>
 </body>
