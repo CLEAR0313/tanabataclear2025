@@ -1,97 +1,165 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>オンライン短冊イベント🎋</title>
+  <meta charset="UTF-8">
+  <title>七夕オンライン短冊イベント</title>
   <style>
     body {
-      font-family: 'Arial', sans-serif;
-      background: linear-gradient(to bottom, #e0f7fa, #ffffff);
-      margin: 0;
-      padding: 2rem;
+      font-family: 'Helvetica', sans-serif;
+      background-image: url("background.png"); /* 背景画像 */
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
       text-align: center;
+      padding: 30px;
     }
 
     h1 {
-      font-size: 2.5rem;
-      color: #00695c;
-      margin-bottom: 1rem;
+      font-size: 2em;
+      color: #9B59B6;
     }
 
-    p {
-      font-size: 1.2rem;
-      color: #555;
+    form {
+      background: rgba(255, 255, 255, 0.85);
+      display: inline-block;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
     }
 
-    textarea {
-      width: 80%;
-      height: 100px;
-      font-size: 1rem;
-      margin-top: 1rem;
-      padding: 0.5rem;
-      border: 2px solid #ccc;
-      border-radius: 10px;
-      resize: none;
+    input, textarea, select {
+      display: block;
+      margin: 10px auto;
+      padding: 10px;
+      width: 250px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
     }
 
     button {
-      margin-top: 1rem;
-      padding: 0.8rem 2rem;
-      font-size: 1.1rem;
-      color: #fff;
-      background-color: #ff8a65;
+      background: #A05FD5;
+      color: white;
       border: none;
-      border-radius: 8px;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 16px;
       cursor: pointer;
     }
 
-    .tanzaku-area {
-      margin-top: 2rem;
+    #wall {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 1rem;
+      gap: 15px;
     }
 
-    .tanzaku {
-      background: linear-gradient(to bottom, #fff176, #fff59d);
-      border: 2px dashed #fdd835;
+    .wish {
+      width: 150px;
+      height: 300px;
+      padding: 10px;
       border-radius: 10px;
-      width: 200px;
-      min-height: 150px;
-      padding: 1rem;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      font-size: 1.1rem;
+      background-image: url('短冊2.png');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
       color: #333;
-      white-space: pre-wrap;
+      text-shadow: 0 1px 1px rgba(255, 255, 255, 0.7);
+      border: 3px solid transparent;
+    }
+
+    .wish .text {
+      flex: 1;
+      font-size: 16px;
+      word-break: break-word;
+      writing-mode: vertical-rl;
+      direction: rtl;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .wish strong {
+      font-size: 12px;
+      opacity: 0.7;
+    }
+
+    h2 {
+      margin-top: 40px;
+      font-size: 1.5em;
     }
   </style>
 </head>
 <body>
-  <h1>🌟七夕オンライン短冊イベント🎋</h1>
-  <p>あなたのお願いごとを短冊に書いて飾ろう！</p>
+  <h1>🎋 七夕オンライン短冊イベント 🎋</h1>
+  <p>あなたの願いごとを短冊に込めて星に届けましょう 🌟</p>
 
-  <textarea id="wish" placeholder="お願いごとを書いてね..."></textarea><br>
-  <button onclick="postWish()">短冊をかける ✨</button>
+  <form onsubmit="submitWish(); return false;">
+    <input type="text" id="name" placeholder="お名前（ニックネーム可）">
+    <textarea id="wish" rows="3" placeholder="あなたの願いごとをここに書いてください"></textarea>
+    <select id="borderColor">
+      <option value="#FF69B4">ピンク</option>
+      <option value="#FFD700">黄色</option>
+      <option value="#32CD32">緑</option>
+      <option value="#1E90FF">青</option>
+      <option value="#9831CC">紫</option>
+    </select>
+    <button type="submit">短冊を飾る</button>
+  </form>
 
-  <div class="tanzaku-area" id="tanzakuList"></div>
+  <h2>みんなの短冊一覧🖋️</h2>
+  <div id="wall"></div>
 
   <script>
-    function postWish() {
-      const wishText = document.getElementById("wish").value.trim();
-      if (wishText === "") {
-        alert("お願いごとを入力してください！");
+    function submitWish() {
+      const name = document.getElementById("name").value.trim() || '匿名';
+      const wish = document.getElementById("wish").value.trim();
+      const borderColor = document.getElementById("borderColor").value;
+
+      if (!wish) {
+        alert("願いごとを入力してください");
         return;
       }
 
-      const tanzaku = document.createElement("div");
-      tanzaku.className = "tanzaku";
-      tanzaku.textContent = wishText;
+      const wishData = { name, wish, borderColor };
+      addWishElement(wishData);
+      saveWishToLocalStorage(wishData);
 
-      document.getElementById("tanzakuList").appendChild(tanzaku);
+      document.getElementById("name").value = "";
       document.getElementById("wish").value = "";
     }
+
+    function addWishElement({ name, wish, borderColor }) {
+      const wall = document.getElementById("wall");
+      const el = document.createElement("div");
+      el.className = 'wish';
+      el.style.borderColor = borderColor || "#000";
+      el.innerHTML = `<div class="text">${wish}</div><strong>${name}</strong>`;
+      wall.appendChild(el);
+    }
+
+    function saveWishToLocalStorage(newWish) {
+      let wishes = JSON.parse(localStorage.getItem("wishes") || "[]");
+      wishes.push(newWish);
+      localStorage.setItem("wishes", JSON.stringify(wishes));
+    }
+
+    function loadWishes() {
+      const saved = localStorage.getItem("wishes");
+      if (saved) {
+        const wishes = JSON.parse(saved);
+        wishes.forEach(wish => addWishElement(wish));
+      }
+    }
+
+    window.onload = loadWishes;
   </script>
 </body>
 </html>
