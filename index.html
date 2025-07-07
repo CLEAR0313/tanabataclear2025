@@ -2,158 +2,78 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>七夕オンライン短冊イベント</title>
   <style>
-    body {
-      font-family: 'Helvetica', sans-serif;
-      background: linear-gradient(to bottom, #fef6ff, #e3f0ff);
-      text-align: center;
-      padding: 30px;
-    }
-
-    h1 {
-      font-size: 2em;
-      color: #9b59b6;
-    }
-
-    form {
-      background: #fff0fa;
-      display: inline-block;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      margin-bottom: 30px;
-    }
-
-    input, textarea {
-      display: block;
-      margin: 10px auto;
-      padding: 10px;
-      width: 250px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 14px;
-    }
-
-    button {
-      background: #a05fd5;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 6px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    #wall {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 15px;
-    }
-
-    .wish {
-      width: 150px;
-      min-height: 250px;
-      padding: 10px;
-      border-radius: 10px;
-      background-image: url('短冊2.png');
-      background-size: cover;
-      background-repeat: no-repeat;
-      background-position: center;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      color: #333;
-      text-shadow: 0 1px 1px rgba(255, 255, 255, 0.7);
-    }
-
-    .wish .text {
-      flex: 1;
-      font-size: 14px;
-      margin-bottom: 10px;
-      word-break: break-word;
-    }
-
-    .wish strong {
-      font-size: 12px;
-      opacity: 0.7;
-    }
-
-    h2 {
-      margin-top: 40px;
-      font-size: 1.5em;
-    }
+    body { background: linear-gradient(to bottom, #FFEAFF, #E0F7FF); font-family: 'Segoe UI', sans-serif; text-align: center; padding: 20px; }
+    h1 { color: #8A2BE2; }
+    .tanzaku-form { background: #FFF0F5; border-radius: 15px; padding: 20px; max-width: 400px; margin: 0 auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    input, textarea, select { width: 90%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #ccc; }
+    button { background-color: #8A2BE2; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+    .tanzaku-wall { margin-top: 30px; }
+    .wish { border: 1px dashed #8A2BE2; border-radius: 8px; padding: 10px; margin: 10px; display: inline-block; max-width: 200px; word-wrap: break-word; }
   </style>
 </head>
 <body>
-  <h1>🎋 七夕オンライン短冊イベント 🎋</h1>
-  <p>あなたの願いごとを短冊に込めて星に届けましょう 🌟</p>
-
-  <form onsubmit="submitWish(); return false;">
-    <input type="text" id="name" placeholder="お名前（ニックネーム可）">
-    <textarea id="wish" rows="3" placeholder="あなたの願いごとをここに書いてください"></textarea>
-    <button type="submit">短冊を飾る</button>
-  </form>
-
-  <h2>みんなの短冊一覧🖋</h2>
-  <div id="wall"></div>
+  <h1>🌟 七夕オンライン短冊イベント 🎋</h1>
+  <p>あなたの願いごとを短冊に込めて、星に届けよう✨</p>
+  <div class="tanzaku-form">
+    <input type="text" id="name" placeholder="お名前(ニックネーム可)"><br>
+    <textarea id="wish" placeholder="あなたの願いごとをここに書いてください"></textarea><br>
+    <label for="color">短冊のカラーを選択:</label><br>
+    <input type="color" id="color" value="#FFEFD5"><br><br>
+    <button onclick="submitWish()">短冊を飾る</button>
+  </div>
+  <div class="tanzaku-wall" id="wall">
+    <h2>みんなの短冊🎐</h2>
+  </div>
 
   <script>
-    // 短冊追加
+    const STORAGE_KEY = 'tanzaku_wishes';
+
+    // ページ読み込み時に保存された短冊を表示
+    window.addEventListener('DOMContentLoaded', () => {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      const wishes = saved ? JSON.parse(saved) : [];
+      wishes.forEach(w => addWishElement(w));
+    });
+
+    // ボタンクリックで短冊を追加＆保存
     function submitWish() {
       const name = document.getElementById("name").value.trim() || '匿名';
       const wish = document.getElementById("wish").value.trim();
-
+      const color = document.getElementById("color").value;
       if (!wish) {
         alert("願いごとを入力してください");
         return;
       }
+      const newWish = { name, wish, color };
+      addWishElement(newWish);
+      saveWish(newWish);
 
-      const wishData = {
-        name: name,
-        wish: wish
-      };
-
-      // 表示追加
-      addWishElement(wishData);
-
-      // 保存処理
-      saveWishToLocalStorage(wishData);
-
-      // フォーム初期化
+      // 入力欄をリセット
       document.getElementById("name").value = "";
       document.getElementById("wish").value = "";
+      document.getElementById("color").value = "#FFEFD5";
     }
 
-    // 表示を追加
-    function addWishElement({ name, wish }) {
+    // DOMに短冊要素を追加
+    function addWishElement({name, wish, color}) {
       const wall = document.getElementById("wall");
-      const el = document.createElement("div");
-      el.className = 'wish';
-      el.innerHTML = `<div class="text">${wish}</div><strong>${name}</strong>`;
-      wall.appendChild(el);
+      const wishEl = document.createElement("div");
+      wishEl.className = "wish";
+      wishEl.style.backgroundColor = color;
+      wishEl.innerHTML = `<strong>${name}</strong><br>${wish}`;
+      wall.appendChild(wishEl);
     }
 
-    // localStorage に保存
-    function saveWishToLocalStorage(newWish) {
-      let wishes = JSON.parse(localStorage.getItem("wishes") || "[]");
-      wishes.push(newWish);
-      localStorage.setItem("wishes", JSON.stringify(wishes));
+    // localStorageに願い事リストを更新して保存
+    function saveWish(wishObj) {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      const wishes = saved ? JSON.parse(saved) : [];
+      wishes.push(wishObj);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(wishes));
     }
-
-    // ページ読み込み時に保存された短冊を表示
-    function loadWishes() {
-      const saved = localStorage.getItem("wishes");
-      if (saved) {
-        const wishes = JSON.parse(saved);
-        wishes.forEach(wish => addWishElement(wish));
-      }
-    }
-
-    // 初期化
-    window.onload = loadWishes;
   </script>
 </body>
 </html>
